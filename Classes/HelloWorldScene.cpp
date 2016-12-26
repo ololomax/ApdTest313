@@ -1,5 +1,6 @@
+
 #include "HelloWorldScene.h"
-#include "SimpleAudioEngine.h"
+#include "PluginAppodeal/PluginAppodeal.h"
 
 USING_NS_CC;
 
@@ -10,10 +11,10 @@ Scene* HelloWorld::createScene()
     
     // 'layer' is an autorelease object
     auto layer = HelloWorld::create();
-
+    
     // add layer as a child to scene
     scene->addChild(layer);
-
+    
     // return the scene
     return scene;
 }
@@ -28,68 +29,146 @@ bool HelloWorld::init()
         return false;
     }
     
-    auto visibleSize = Director::getInstance()->getVisibleSize();
-    Vec2 origin = Director::getInstance()->getVisibleOrigin();
-
-    /////////////////////////////
-    // 2. add a menu item with "X" image, which is clicked to quit the program
-    //    you may modify it.
-
-    // add a "close" icon to exit the progress. it's an autorelease object
-    auto closeItem = MenuItemImage::create(
-                                           "CloseNormal.png",
-                                           "CloseSelected.png",
-                                           CC_CALLBACK_1(HelloWorld::menuCloseCallback, this));
-    
-    closeItem->setPosition(Vec2(origin.x + visibleSize.width - closeItem->getContentSize().width/2 ,
-                                origin.y + closeItem->getContentSize().height/2));
-
-    // create menu, it's an autorelease object
-    auto menu = Menu::create(closeItem, NULL);
-    menu->setPosition(Vec2::ZERO);
-    this->addChild(menu, 1);
-
-    /////////////////////////////
-    // 3. add your codes below...
-
-    // add a label shows "Hello World"
-    // create and initialize a label
-    
-    auto label = Label::createWithTTF("Hello World", "fonts/Marker Felt.ttf", 24);
-    
-    // position the label on the center of the screen
-    label->setPosition(Vec2(origin.x + visibleSize.width/2,
-                            origin.y + visibleSize.height - label->getContentSize().height));
-
-    // add the label as a child to this layer
-    this->addChild(label, 1);
-
-    // add "HelloWorld" splash screen"
-    auto sprite = Sprite::create("HelloWorld.png");
-
-    // position the sprite on the center of the screen
-    sprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-
-    // add the sprite as a child to this layer
-    this->addChild(sprite, 0);
+    createAdMenu();
     
     return true;
 }
 
-
-void HelloWorld::menuCloseCallback(Ref* pSender)
+void HelloWorld::createAdMenu()
 {
-    //Close the cocos2d-x game scene and quit the application
-    Director::getInstance()->end();
+    sdkbox::PluginAppodeal::setListener(this);
+    
+    auto menu = Menu::create();
+    menu->addChild(MenuItemLabel::create(Label::createWithSystemFont("Interstitial", "broadway", 12), [](Ref*){
+        CCLOG("Interstitial");
+        sdkbox::PluginAppodeal::showAd(sdkbox::PluginAppodeal::AppodealShowStyleInterstitial);
+    }));
+    
+    menu->addChild(MenuItemLabel::create(Label::createWithSystemFont("SkippableVideo", "broadway", 12), [](Ref*){
+        CCLOG("SkippableVideo");
+        sdkbox::PluginAppodeal::showAd(sdkbox::PluginAppodeal::AppodealShowStyleSkippableVideo);
+    }));
+    
+    menu->addChild(MenuItemLabel::create(Label::createWithSystemFont("VideoOrInterstitial", "broadway", 12), [](Ref*){
+        CCLOG("VideoOrInterstitial");
+        sdkbox::PluginAppodeal::showAd(sdkbox::PluginAppodeal::AppodealShowStyleVideoOrInterstitial);
+    }));
+    
+    menu->addChild(MenuItemLabel::create(Label::createWithSystemFont("Banner", "broadway", 12), [](Ref*){
+        CCLOG("Banner");
+        sdkbox::PluginAppodeal::showAd(sdkbox::PluginAppodeal::AppodealShowStyleBannerBottom);
+    }));
+    
+    menu->addChild(MenuItemLabel::create(Label::createWithSystemFont("Hide Banner", "broadway", 12), [](Ref*){
+        CCLOG("HideBanner");
+        sdkbox::PluginAppodeal::hideBanner();
+    }));
+    
+    menu->addChild(MenuItemLabel::create(Label::createWithSystemFont("RewardedVideo", "broadway", 12), [](Ref*){
+        CCLOG("RewardedVideo");
+        sdkbox::PluginAppodeal::showAd(sdkbox::PluginAppodeal::AppodealShowStyleRewardedVideo);
+    }));
+    
+    menu->addChild(MenuItemLabel::create(Label::createWithSystemFont("NonSkippableVideo", "broadway", 12), [](Ref*){
+        CCLOG("NonSkippableVideo");
+        sdkbox::PluginAppodeal::showAd(sdkbox::PluginAppodeal::AppodealShowStyleNonSkippableVideo);
+    }));
+    
+    menu->alignItemsVerticallyWithPadding(10);
+    addChild(menu);
+}
 
-    #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    exit(0);
-#endif
-    
-    /*To navigate back to native iOS screen(if present) without quitting the application  ,do not use Director::getInstance()->end() and exit(0) as given above,instead trigger a custom event created in RootViewController.mm as below*/
-    
-    //EventCustom customEndEvent("game_scene_close_event");
-    //_eventDispatcher->dispatchEvent(&customEndEvent);
-    
-    
+void HelloWorld::onBannerDidLoadAd()
+{
+    CCLOG("onBannerDidLoadAd");
+}
+
+void HelloWorld::onBannerDidFailToLoadAd()
+{
+    CCLOG("onBannerDidFailToLoadAd");
+}
+
+void HelloWorld::onBannerDidClick()
+{
+    CCLOG("onBannerDidClick");
+}
+
+void HelloWorld::onBannerPresent()
+{
+    CCLOG("onBannerPresent");
+}
+// just trigger on android
+void HelloWorld::onInterstitialDidLoadAd()
+{
+    CCLOG("onInterstitialDidLoadAd");
+}
+
+void HelloWorld::onInterstitialDidFailToLoadAd()
+{
+    CCLOG("onInterstitialDidFailToLoadAd");
+}
+
+void HelloWorld::onInterstitialWillPresent()
+{
+    CCLOG("onInterstitialWillPresent");
+}
+
+void HelloWorld::onInterstitialDidDismiss()
+{
+    CCLOG("onInterstitialDidDismiss");
+}
+
+void HelloWorld::onInterstitialDidClick()
+{
+    CCLOG("onInterstitialDidClick");
+}
+
+void HelloWorld::onVideoDidLoadAd()
+{
+    CCLOG("onVideoDidLoadAd");
+}
+
+void HelloWorld::onVideoDidFailToLoadAd()
+{
+    CCLOG("onVideoDidFailToLoadAd");
+}
+
+void HelloWorld::onVideoDidPresent()
+{
+    CCLOG("onVideoDidPresent");
+}
+
+void HelloWorld::onVideoWillDismiss()
+{
+    CCLOG("onVideoWillDismiss");
+}
+
+void HelloWorld::onVideoDidFinish()
+{
+    CCLOG("onVideoDidFinish");
+}
+
+void HelloWorld::onRewardVideoDidLoadAd()
+{
+    CCLOG("onRewardVideoDidLoadAd");
+}
+
+void HelloWorld::onRewardVideoDidFailToLoadAd()
+{
+    CCLOG("onRewardVideoDidFailToLoadAd");
+}
+
+void HelloWorld::onRewardVideoDidPresent()
+{
+    CCLOG("onRewardVideoDidPresent");
+}
+
+void HelloWorld::onRewardVideoWillDismiss()
+{
+    CCLOG("onRewardVideoWillDismiss");
+}
+
+void HelloWorld::onRewardVideoDidFinish(int amount, const std::string& name)
+{
+    CCLOG("onRewardVideoDidFinish, amount = %d, name = %s", amount, name.c_str());
 }

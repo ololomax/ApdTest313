@@ -1,7 +1,30 @@
 #include "AppDelegate.h"
 #include "HelloWorldScene.h"
+#ifdef SDKBOX_ENABLED
+#include "PluginAppodeal/PluginAppodeal.h"
+#endif
 
 USING_NS_CC;
+
+class ADListener : public sdkbox::AppodealListener {
+public:
+    virtual void onBannerDidLoadAd();
+    virtual void onBannerDidFailToLoadAd();
+    virtual void onBannerDidClick();
+    virtual void onBannerPresent();
+    
+    virtual void onInterstitialDidLoadAd();
+    virtual void onInterstitialDidFailToLoadAd();
+    virtual void onInterstitialWillPresent();
+    virtual void onInterstitialDidDismiss();
+    virtual void onInterstitialDidClick();
+    
+    virtual void onVideoDidLoadAd();
+    virtual void onVideoDidFailToLoadAd();
+    virtual void onVideoDidPresent();
+    virtual void onVideoWillDismiss();
+    virtual void onVideoDidFinish();
+};
 
 static cocos2d::Size designResolutionSize = cocos2d::Size(480, 320);
 static cocos2d::Size smallResolutionSize = cocos2d::Size(480, 320);
@@ -34,14 +57,18 @@ static int register_all_packages()
 }
 
 bool AppDelegate::applicationDidFinishLaunching() {
+#ifdef SDKBOX_ENABLED
+    sdkbox::PluginAppodeal::init();
+    //sdkbox::PluginAppodeal::setListener(this);
+#endif
     // initialize director
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();
     if(!glview) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-        glview = GLViewImpl::createWithRect("ApdTestCocos313", cocos2d::Rect(0, 0, designResolutionSize.width, designResolutionSize.height));
+        glview = GLViewImpl::createWithRect("gamename", cocos2d::Rect(0, 0, designResolutionSize.width, designResolutionSize.height));
 #else
-        glview = GLViewImpl::create("ApdTestCocos313");
+        glview = GLViewImpl::create("gamename");
 #endif
         director->setOpenGLView(glview);
     }
